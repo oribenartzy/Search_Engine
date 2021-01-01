@@ -82,7 +82,7 @@ class Searcher:
             relevant_docs = self._relevant_docs_from_posting(query_as_list)
             n_relevant = len(relevant_docs)
             with open('results.csv', 'a', encoding='utf-8') as fp:
-                for p in relevant_docs:
+                for p in relevant_docs:  # TODO: [:k]
                     s = ("Tweet id: " + "{" + p + "}" + " Score: " + "{" + str(tweet_id_num) + "}" + "\n")
                     tweet_id_num += 1
                     fp.write(s)
