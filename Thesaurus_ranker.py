@@ -1,6 +1,3 @@
-import nltk
-nltk.download('lin_thesaurus')
-
 from nltk.corpus import lin_thesaurus as thesaurus
 
 class Thesaurus_ranker:

@@ -26,7 +26,7 @@ class Indexer:
         self.sorted_posting_dict = {}
         self.tf_idf_dict = {}
         self.sorted_term_dict = {}
-        self.path = self.config.get__savedFileMainFolder()+"\\"
+        #self.path = self.config.get__savedFileMainFolder()+"\\"
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
