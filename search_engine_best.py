@@ -22,7 +22,7 @@ class SearchEngine:
         self._indexer = Indexer(config)
         self._model = None
 
-    def get_num_of_tweets (self):
+    def get_num_of_tweets(self):
         return self.num_of_tweets
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -43,12 +43,13 @@ class SearchEngine:
         for idx, document in enumerate(documents_list):
             # parse the document
             parsed_document = self._parser.parse_doc(document)
+            parsed_document.num_of_tweets = self.num_of_tweets
             number_of_documents += 1
             # index the document data
             self._indexer.add_new_doc(parsed_document)
         print('Finished parsing and indexing.')
         # TODO: check indexer saving
-        utils.save_obj(self._indexer.inverted_idx, "inverted_idx")
+        # utils.save_obj(self._indexer.inverted_idx, "inverted_idx")
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -84,6 +85,8 @@ class SearchEngine:
             a list of tweet_ids where the first element is the most relavant 
             and the last is the least relevant result.
         """
+        #new_query = Thesaurus_ranker.extend_query(query)
+        #new_query = WordNet_ranker.extend_query(query)
         searcher = Searcher(self._parser, self._indexer, model=self._model)
         return searcher.search(query)  # TODO: add K results
 
@@ -114,8 +117,10 @@ def main():
                         fp.write(s)
                     print("Tweet id: " + "{}" + " Score: " + "{}" + "\n")"""
     if not empty_query:
-        corpus_path = configuration.get__corpusPath()
-        SearchEngine.build_index_from_parquet(corpus_path)
+        config = ConfigClass()
+        corpus_path = configuration.ConfigClass.get__corpusPath(config)
+        Search_Engine = SearchEngine(config)
+        Search_Engine.build_index_from_parquet(corpus_path)
         # query = input("Please enter a query: ")
         # k = int(input("Please enter number of docs to retrieve: "))
         # inverted_index = self.load_index()
@@ -125,9 +130,9 @@ def main():
             for res in query:
                 print("Tweet id: " + "{" + res + "}" + " Score: " + "{" + str(num) + "}")
                 num += 1"""
-        final_tweets = SearchEngine.search_and_rank_query("queries.txt")
-        for query in final_tweets[1]:
-            num = 1
-            for res in query:
-                print("Tweet id: " + "{" + res + "}" + " Score: " + "{" + str(num) + "}")
-                num += 1
+        final_tweets = Search_Engine.search(["Children are “almost immune from this disease.”"])
+        print("num of relevant:", final_tweets[0])
+        num = 1
+        for tweet_id in final_tweets[1].keys():
+            print("Tweet id: " + "{" + tweet_id + "}" + " Score: " + "{" + str(num) + "}")
+            num += 1

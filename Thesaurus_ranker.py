@@ -1,3 +1,6 @@
+import nltk
+nltk.download('lin_thesaurus')
+
 from nltk.corpus import lin_thesaurus as thesaurus
 
 class Thesaurus_ranker:
@@ -8,7 +11,7 @@ class Thesaurus_ranker:
         self.query = query
 
 
-    def extend_query (self):
+    def extend_query(self):
 
         #print(self.query)
         word_to_add = []

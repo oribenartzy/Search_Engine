@@ -1,10 +1,8 @@
 # DO NOT MODIFY CLASS NAME
 import copy
 import collections
+import math
 import os
-
-from search_engine_best import SearchEngine
-
 
 class Indexer:
 
@@ -12,12 +10,10 @@ class Indexer:
     file_counter = 1
     file_name_list = []
     finished_inverted = False
-    tweet_line_dict = {}
-    line_number = 0
     cur_num_of_tweets = 0
     writen_terms = 0
-    zipf = {}
     num_of_all_tweets = 0
+    N_tweets = 0
 
 
     # DO NOT MODIFY THIS SIGNATURE
@@ -27,7 +23,6 @@ class Indexer:
         self.config = config
         self.inverted_idx = {}
         self.temp_posting_dict = {}
-        self.copy_posting_dict = {}
         self.sorted_posting_dict = {}
         self.tf_idf_dict = {}
         self.sorted_term_dict = {}
@@ -42,8 +37,12 @@ class Indexer:
         :param document: a document need to be indexed.
         :return: -
         """
-        num_of_all_tweets = SearchEngine.get_num_of_tweets()
+
+        num_of_all_tweets = document.num_of_tweets
         self.cur_num_of_tweets += 1
+
+
+
         document_dictionary = document.term_doc_dictionary
 
         # Update tf-idf dict
@@ -53,32 +52,46 @@ class Indexer:
 
         # Go over each term in the doc
         if document.doc_length != -1:  # if NOT RT
+            self.N_tweets += 1
             for term in document_dictionary.keys():
                 try:
                     # Update posting
                     if term not in self.temp_posting_dict.keys():
-                        self.temp_posting_dict[term] = []
-                        self.temp_posting_dict[term].append([document.tweet_id, document_dictionary[term][0], document_dictionary[term][1]])
+                        self.temp_posting_dict[term] = []                                           # TF= Fi/|D|
+                        self.temp_posting_dict[term].append([document.tweet_id, document_dictionary[term][0]/document.doc_length, document_dictionary[term][1]])
 
                     else:
-                        self.temp_posting_dict[term].append([document.tweet_id, document_dictionary[term][0], document_dictionary[term][1]])
+                        self.temp_posting_dict[term].append([document.tweet_id, document_dictionary[term][0]/document.doc_length, document_dictionary[term][1]])
+                    # Create inverted_idx
+                    if term not in self.inverted_idx.keys():
+                        self.inverted_idx[term] = []
+                        self.inverted_idx[term].append([1, 0, self.path + 'posting.txt'])  # num of tweets, pointer
+                    else:
+                        self.inverted_idx[term][0][0] += 1  # DFi
                 except:
                     print('problem with the following key {}'.format(term[0]))
-            self.tweet_line_dict[document.tweet_id] = self.line_number  # tweet_id, line_num
-            self.line_number += 1
 
+        if self.cur_num_of_tweets == num_of_all_tweets and document.doc_length != -1:
+            for term in self.inverted_idx.keys():
+                try:
+                    # Update inverted_idx with IDF
+                    self.inverted_idx[term][0][1] = math.log(self.N_tweets/self.inverted_idx[term][0][0], 2)  # LOG(N/DFi)
+                except:
+                    print('problem with the following key {}'.format(term[0]))
+
+        # write Posting dict to file
         if self.cur_num_of_tweets == num_of_all_tweets and document.doc_length != -1:  # last tweet
             # sort the dict
             self.sorted_posting_dict = collections.OrderedDict(sorted(self.temp_posting_dict.items()))
-            #print("*********************************************")
+            print("*********************************************")
             # make a txt file out of the sorted_posting_dict
-            with open(self.path+'posting.txt', 'w', encoding='utf-8') as fp:
+            with open('posting.txt', 'w', encoding='utf-8') as fp:
                 for p in self.sorted_posting_dict.items():
                     for str1 in p[1]:
                         self.writen_terms += 1
                         s = p[0] + ":" + str(str1[0]) + "-" + str(str1[1]) + "-" + str(str1[2])[1:-1]
                         fp.write(s+"\n")
-            #print("*********************************************")
+            print("*********************************************")
             # empty dicts
             self.temp_posting_dict.clear()
             self.sorted_posting_dict.clear()
@@ -89,7 +102,7 @@ class Indexer:
             # sort the dict
             self.sorted_term_dict = collections.OrderedDict(sorted(document.term_dict.items()))
             # make a txt file out of the term_dict
-            with open(self.path+'posting.txt', 'a', encoding='utf-8') as fp:
+            with open('posting.txt', 'a', encoding='utf-8') as fp:
                 for p in self.sorted_term_dict.items():
                     if len(p[1]) > 1:  # more then 2 tweet_id
                         for str1 in p[1]:
@@ -99,7 +112,8 @@ class Indexer:
             # empty sorted_term_dict
             self.sorted_term_dict.clear()
             self.file_counter += 1
-            self.create_inverted_index(self.path+'posting.txt')
+            # self.create_inverted_index(self.path+'posting.txt')
+            self.finished_inverted = True
 
         # Change all capital letter terms in dict
         if self.finished_inverted:
@@ -110,7 +124,7 @@ class Indexer:
                         del self.inverted_idx[term.lower()]
 
 
-    def create_inverted_index(self, file_name):
+    """def create_inverted_index(self, file_name):
         with open(self.path+file_name, buffering=2000000, encoding='utf-8') as f:
             num_of_lines = 1
             count = 1
@@ -150,7 +164,7 @@ class Indexer:
                 self.posting_file_num += 1
         if self.file_counter > self.posting_file_num:
             os.remove(self.path+self.file_name_list[0])
-        self.finished_inverted = True
+        self.finished_inverted = True"""
 
 
 

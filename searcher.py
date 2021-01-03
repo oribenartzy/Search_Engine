@@ -101,9 +101,8 @@ class Searcher:
         """
         relevant_docs = {}
         for term in query_as_list:
-            if term in self.inverted_index:
-                posting_file_name = self.inverted_index[term][0][1]
-                with open(posting_file_name, buffering=2000000, encoding='utf-8') as f:
+            if term in self._indexer.inverted_idx:
+                with open("posting.txt", buffering=2000000, encoding='utf-8') as f:
                     for line in f:
                         term_list = line.split(":")
                         key = term_list[0]
@@ -114,11 +113,11 @@ class Searcher:
                             try:
                                 split = value.split("-")
                                 tweet_id = split[0]
-                                occur = split[1]
+                                occur = split[1]  # tf
                                 if tweet_id not in relevant_docs.keys():
-                                    relevant_docs[tweet_id] = int(occur)
+                                    relevant_docs[tweet_id] = float(occur)*self._indexer.inverted_idx[term][0][1]  # TF-IDF
                                 else:
-                                    relevant_docs[tweet_id] += int(occur)
+                                    relevant_docs[tweet_id] += float(occur)*self._indexer.inverted_idx[term][0][1]
                             except:
                                 print('term {} not found in posting'.format(term))
         sorted_relevant_docs = {k: v for k, v in sorted(relevant_docs.items(), key=lambda item: item[1], reverse=True)}

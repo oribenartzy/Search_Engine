@@ -384,7 +384,7 @@ class Parse:
         if tokenized_text == []:
             tweet = Document(tweet_id, tweet_date, full_text, url, retweet_text, retweet_url, quote_text,
                              quote_url, {}, -1, 0, 0, self.capital_letter_dict,
-                             self.term_dict)
+                             self.term_dict, 0)
             return tweet
 
         idx_in_tweet = 0
@@ -433,6 +433,6 @@ class Parse:
 
         tweet = Document(tweet_id, tweet_date, full_text, url, retweet_text, retweet_url, quote_text,
                          quote_url, term_dict, doc_length, max_tf, distinct_words, self.capital_letter_dict,
-                         self.term_dict)
+                         self.term_dict, 0)
 
         return tweet
