@@ -1,4 +1,6 @@
 import pandas as pd
+
+import Thesaurus_ranker
 from reader import ReadFile
 from configuration import ConfigClass
 from parser_module import Parse
@@ -123,5 +125,6 @@ class SearchEngine:
             a list of tweet_ids where the first element is the most relavant 
             and the last is the least relevant result.
         """
+        new_query = Thesaurus_ranker.extend_query(query)
         searcher = Searcher(self._parser, self._indexer, model=self._model)
-        return searcher.search(query)  # TODO: add K results
+        return searcher.search(new_query)  # TODO: add K results

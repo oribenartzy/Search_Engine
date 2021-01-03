@@ -12,11 +12,8 @@ class Indexer:
     file_counter = 1
     file_name_list = []
     finished_inverted = False
-    LDA_list = []
-    # LDA
     tweet_line_dict = {}
     line_number = 0
-    lda = None
     cur_num_of_tweets = 0
     writen_terms = 0
     zipf = {}
@@ -56,7 +53,6 @@ class Indexer:
 
         # Go over each term in the doc
         if document.doc_length != -1:  # if NOT RT
-            term_list_to_LDA = []
             for term in document_dictionary.keys():
                 try:
                     # Update posting
@@ -68,8 +64,6 @@ class Indexer:
                         self.temp_posting_dict[term].append([document.tweet_id, document_dictionary[term][0], document_dictionary[term][1]])
                 except:
                     print('problem with the following key {}'.format(term[0]))
-                term_list_to_LDA.append(term)
-            self.LDA_list.append(term_list_to_LDA)  # add to LDA list
             self.tweet_line_dict[document.tweet_id] = self.line_number  # tweet_id, line_num
             self.line_number += 1
 
@@ -89,15 +83,6 @@ class Indexer:
             self.temp_posting_dict.clear()
             self.sorted_posting_dict.clear()
             self.file_counter += 1
-            # write the corpus to the disk
-            with open('LDA.txt', 'a', encoding='utf-8') as fp:
-                for p in self.LDA_list:
-                    s = ""
-                    for term in p:
-                        s += term+" "
-                    fp.write(s + "\n")
-            self.LDA_list.clear()
-            #self.lock.release()
 
         # create new file of term_dict
         if self.cur_num_of_tweets == num_of_all_tweets:  # last tweet
@@ -123,29 +108,6 @@ class Indexer:
                     if term.lower() in self.inverted_idx:
                         self.inverted_idx[term] = self.inverted_idx[term.lower()]
                         del self.inverted_idx[term.lower()]
-        # TODO: LDA RANKER
-        """if self.finished_inverted:
-            # read the corpus from file
-            with open('LDA.txt', buffering=2000000, encoding='utf-8') as f:
-                for line in f:
-                    sp_line = line.split(" ")
-                    self.LDA_list.append(sp_line)
-            os.remove('LDA.txt')
-            # add long term into LDA list
-            for term in document.term_dict:
-                for ID in document.term_dict[term]:
-                    if ID[1] > 1:
-                        tweet_id = ID[0]
-                        if tweet_id in self.tweet_line_dict:
-                            index = self.tweet_line_dict[tweet_id]
-                            self.LDA_list[index].append(term)
-            # empty term_dict
-            document.term_dict.clear()
-            self.lda = LDA_ranker(self.LDA_list)  # start LDA ranker
-            # empty LDA_list
-            #self.LDA_list.clear()
-            self.lda.create_corpus()
-            #return lda"""
 
 
     def create_inverted_index(self, file_name):
