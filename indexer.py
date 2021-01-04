@@ -3,6 +3,7 @@ import copy
 import collections
 import math
 import os
+import utils
 
 class Indexer:
 
@@ -26,7 +27,7 @@ class Indexer:
         self.sorted_posting_dict = {}
         self.tf_idf_dict = {}
         self.sorted_term_dict = {}
-        #self.path = self.config.get__savedFileMainFolder()+"\\"
+        self.path = self.config.get__savedFileMainFolder()+"\\"
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -177,7 +178,9 @@ class Indexer:
         Input:
             fn - file name of pickled index.
         """
-        raise NotImplementedError
+        inverted_index = utils.load_obj("inverted_idx")
+        return inverted_index
+
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -187,9 +190,9 @@ class Indexer:
         Input:
               fn - file name of pickled index.
         """
-        raise NotImplementedError
+        utils.save_obj(self._indexer.inverted_idx, "inverted_idx")
 
-    # feel free to change the signature and/or implementation of this function 
+    # feel free to change the signature and/or implementation of this function
     # or drop altogether.
     def _is_term_exist(self, term):
         """

@@ -2,8 +2,6 @@ from nltk.corpus import wordnet as wn
 
 class WordNet_ranker:
 
-    query = []
-
     def __init__(self, query):
         self.query = query
 

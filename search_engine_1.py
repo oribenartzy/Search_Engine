@@ -1,4 +1,7 @@
+import re
+
 import pandas as pd
+from nltk.corpus import stopwords
 
 import configuration
 from Thesaurus_ranker import Thesaurus_ranker
@@ -27,6 +30,7 @@ class SearchEngine:
         return self.num_of_tweets
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
+
     def build_index_from_parquet(self, fn):
         """
         Reads parquet file and passes it to the parser, then indexer.
@@ -50,7 +54,7 @@ class SearchEngine:
             self._indexer.add_new_doc(parsed_document)
         print('Finished parsing and indexing.')
         # TODO: check indexer saving
-        # utils.save_obj(self._indexer.inverted_idx, "inverted_idx")
+        utils.save_obj(self._indexer.inverted_idx, "inverted_idx")
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -60,7 +64,8 @@ class SearchEngine:
         Input:
             fn - file name of pickled index.
         """
-        self._indexer.load_index(fn)
+        inverted_idx = self._indexer.load_index(fn)
+        return inverted_idx
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -86,7 +91,41 @@ class SearchEngine:
             a list of tweet_ids where the first element is the most relavant
             and the last is the least relevant result.
         """
-        thesaurus = Thesaurus_ranker(query)
+
+        query_as_list = self._parser.parse_sentence(query, 0)
+        original_query_list = query.split(" ")
+        stop_words = stopwords.words('english')
+        original_query_list = [w for w in original_query_list if w not in stop_words]
+        # find long terms and upper case words
+        counter = 0
+        while counter < len(original_query_list):
+            len_term = 1
+            word = original_query_list[counter]
+            if word.isupper():  # NBA
+                if word.find("\n") != -1:
+                    word = word[:-1]
+                    if word.find(".") != -1:
+                        word = word[:-1]
+                query_as_list.append(word)
+            elif len(word) > 1 and re.search('[a-zA-Z]', word) and word[0].isupper():  # upper first char
+                term = word
+                if original_query_list.index(word) + 1 < len(original_query_list):
+                    index = original_query_list.index(word) + 1
+                    while index < len(original_query_list):  # find all term
+                        if len(original_query_list[index]) > 1 and re.search('[a-zA-Z]',
+                                                                             original_query_list[index]) and \
+                                original_query_list[index][0].isupper():
+                            new_word2 = original_query_list[index][0] + original_query_list[index][
+                                                                        1:].lower()  # Donald Trump
+                            term += " " + new_word2
+                            index += 1
+                            len_term += 1
+                        else:
+                            break
+                    if len_term > 1:
+                        query_as_list.append(term)
+            counter += len_term
+        thesaurus = Thesaurus_ranker(query_as_list)
         new_query = thesaurus.extend_query()
         searcher = Searcher(self._parser, self._indexer, model=self._model)
         return searcher.search(new_query)  # TODO: add K results
@@ -131,9 +170,10 @@ def main():
             for res in query:
                 print("Tweet id: " + "{" + res + "}" + " Score: " + "{" + str(num) + "}")
                 num += 1"""
-        final_tweets = Search_Engine.search(["Children are “almost immune from this disease.”"])
+        final_tweets = Search_Engine.search('bioweapon')
         print("num of relevant:", final_tweets[0])
         num = 1
         for tweet_id in final_tweets[1].keys():
-            print("Tweet id: " + "{" + tweet_id + "}" + " Score: " + "{" + str(num) + "}")
-            num += 1
+            if num >= 5:
+                print("Tweet id: " + "{" + tweet_id + "}" + " Score: " + "{" + str(num) + "}")
+                num += 1
