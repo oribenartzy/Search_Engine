@@ -75,7 +75,7 @@ class SearchEngine:
         This is where you would load models like word2vec, LSI, LDA, etc. and
         assign to self._model, which is passed on to the searcher at query time.
         """
-        pass
+        return None
 
         # DO NOT MODIFY THIS SIGNATURE
         # You can change the internal implementation as you see fit.

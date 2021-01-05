@@ -2,15 +2,10 @@ from nltk.corpus import lin_thesaurus as thesaurus
 
 class Thesaurus_ranker:
 
-
-
     def __init__(self, query):
         self.query = query
 
-
     def extend_query(self):
-
-        #print(self.query)
         word_to_add = []
         if len(self.query) == 0:
             return []

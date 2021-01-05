@@ -4,6 +4,8 @@ import pandas as pd
 from nltk.corpus import stopwords
 
 import configuration
+from Thesaurus_ranker import Thesaurus_ranker
+from WordNet_ranker import WordNet_ranker
 from reader import ReadFile
 from configuration import ConfigClass
 from parser_module import Parse
@@ -72,7 +74,7 @@ class SearchEngine:
         This is where you would load models like word2vec, LSI, LDA, etc. and 
         assign to self._model, which is passed on to the searcher at query time.
         """
-        pass
+        return None
 
         # DO NOT MODIFY THIS SIGNATURE
         # You can change the internal implementation as you see fit.
@@ -130,8 +132,19 @@ class SearchEngine:
                     if len_term > 1:
                         query_as_list.append(term)
             counter += len_term
+        thesaurus = Thesaurus_ranker(query_as_list)
+        thesaurus_query = thesaurus.extend_query()
+        wordNet = WordNet_ranker(query_as_list)
+        wordNet_query = wordNet.extend_query()
+        new_query = []
+        new_query.extend(wordNet_query)
+        if len(thesaurus_query) > 0 and len(wordNet_query) > 0:
+            for term in thesaurus_query:
+                if term not in wordNet_query:
+                    new_query.append(term)
+
         searcher = Searcher(self._parser, self._indexer, model=self._model)
-        return searcher.search(query_as_list)  # TODO: add K results
+        return searcher.search(new_query)  # TODO: add K results
 
 
 def main():
@@ -173,10 +186,11 @@ def main():
             for res in query:
                 print("Tweet id: " + "{" + res + "}" + " Score: " + "{" + str(num) + "}")
                 num += 1"""
-        final_tweets = Search_Engine.search("Children are “almost immune from this disease.”")
+        final_tweets = Search_Engine.search("twitter.com")
         print("num of relevant:", final_tweets[0])
         num = 1
         for tweet_id in final_tweets[1].keys():
             if num >= 5:
                 print("Tweet id: " + "{" + tweet_id + "}" + " Score: " + "{" + str(num) + "}")
                 num += 1
+        #print(Search_Engine.load_index('inverted_idx.pkl'))

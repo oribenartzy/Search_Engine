@@ -1,8 +1,11 @@
 # DO NOT MODIFY CLASS NAME
 import copy
 import collections
+import fileinput
 import math
 import os
+import pickle
+
 import utils
 
 class Indexer:
@@ -82,9 +85,17 @@ class Indexer:
 
         # write Posting dict to file
         if self.cur_num_of_tweets == num_of_all_tweets and document.doc_length != -1:  # last tweet
+            print(len(self.inverted_idx))
+            key_list = []
+            for key in self.inverted_idx.keys():
+                key_list.append(key)
+            for term in key_list:  # remove all term with term frequency 1
+                if self.inverted_idx[term][0][0] == 1:
+                    del self.inverted_idx[term]
+            print(len(self.inverted_idx))
             # sort the dict
             self.sorted_posting_dict = collections.OrderedDict(sorted(self.temp_posting_dict.items()))
-            print("*********************************************")
+            #print("*********************************************")
             # make a txt file out of the sorted_posting_dict
             with open('posting.txt', 'w', encoding='utf-8') as fp:
                 for p in self.sorted_posting_dict.items():
@@ -92,10 +103,9 @@ class Indexer:
                         self.writen_terms += 1
                         s = p[0] + ":" + str(str1[0]) + "-" + str(str1[1]) + "-" + str(str1[2])[1:-1]
                         fp.write(s+"\n")
-            print("*********************************************")
+            #print("*********************************************")
             # empty dicts
             self.temp_posting_dict.clear()
-            self.sorted_posting_dict.clear()
             self.file_counter += 1
 
         # create new file of term_dict
@@ -123,6 +133,11 @@ class Indexer:
                     if term.lower() in self.inverted_idx:
                         self.inverted_idx[term] = self.inverted_idx[term.lower()]
                         del self.inverted_idx[term.lower()]
+
+
+        """if self.cur_num_of_tweets == num_of_all_tweets:  # last tweet
+            self.save_index('idx_bench.pkl')
+            self.load_index('idx_bench.pkl')"""
 
 
     """def create_inverted_index(self, file_name):
@@ -178,8 +193,16 @@ class Indexer:
         Input:
             fn - file name of pickled index.
         """
-        inverted_index = utils.load_obj("inverted_idx")
-        return inverted_index
+        file_name = 'idx_bench.pkl'
+        open_file = open(file_name, "rb")
+        loaded_list = pickle.load(open_file)
+        open_file.close()
+        # saving the posting file to folder
+        with open('posting_pkl.txt', 'w', encoding='utf-8') as fp:
+            s = loaded_list[1]
+            fp.write(s)
+
+        return loaded_list[0]
 
 
     # DO NOT MODIFY THIS SIGNATURE
@@ -190,7 +213,12 @@ class Indexer:
         Input:
               fn - file name of pickled index.
         """
-        utils.save_obj(self._indexer.inverted_idx, "inverted_idx")
+        file_name = 'idx_bench.pkl'
+        open_file = open(file_name, "wb")
+        file = open('posting.txt', 'r')
+        sample_list = [self.inverted_idx, file.read()]
+        pickle.dump(sample_list, open_file)
+        open_file.close()
 
     # feel free to change the signature and/or implementation of this function
     # or drop altogether.

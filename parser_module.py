@@ -62,8 +62,8 @@ class Parse:
                         self.capital_letter_dict[term.upper()] = True"""
                 elif len_term > 1:  # appends to term_dict - key + tweet id
                     final_term = original_term.split(" ")
-                    for word in final_term:
-                        tokenized_text.remove(word)
+                    """for word in final_term:
+                        tokenized_text.remove(word)"""
                     found = False
                     if term in self.term_dict:
                         for tuple in self.term_dict[term]:
@@ -408,12 +408,13 @@ class Parse:
                 if term.find(".") != -1:
                     if not (term == "http" or term == "https" or term.find(
                             ":") != -1 or term == "t.co" or term == "!" or term == "##" or term == "~r" or term == "#" or term == "~"):
-                        if term not in term_dict.keys():
-                            term_dict[term] = [1, [
+                        last_term = term.replace(".","")
+                        if last_term not in term_dict.keys():
+                            term_dict[last_term] = [1, [
                                 idx_in_tweet]]  # 1->num of occur in tweet, idx_in_tweet-> place in tweet
                         else:
-                            term_dict[term][0] += 1
-                            term_dict[term][1].append(idx_in_tweet)
+                            term_dict[last_term][0] += 1
+                            term_dict[last_term][1].append(idx_in_tweet)
                         idx_in_tweet += 1
 
         # print(term_dict)

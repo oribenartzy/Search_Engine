@@ -5,9 +5,7 @@ class WordNet_ranker:
     def __init__(self, query):
         self.query = query
 
-
-    def extend_query (self):
-        #print(self.query)
+    def extend_query(self):
         word_to_add = []
         for term in self.query:
             synonyms = []
@@ -32,13 +30,20 @@ class WordNet_ranker:
                     if num is not None:
                         if num > max:
                             if synonyms[index] != term:
-                                new_term = synonyms[index]
-                                max = num
+                                if "_" in synonyms[index]:
+                                    word = synonyms[index].replace("_", " ")
+                                    new_term = word
+                                    max = num
+
+                                else:
+                                    new_term = synonyms[index]
+                                    max = num
                     index += 1
                 if new_term != "":
                     word_to_add.append(new_term)
                 #print("res", res)
                 #print("synonyms", synonyms)
+        #print(word_to_add)
         self.query.extend(word_to_add)
         #print(self.query)
         return self.query
