@@ -9,3 +9,8 @@ pytz
 regex==2020.10.28
 six==1.15.0
 tqdm==4.51.0
+
+requests~=2.25.0
+utils~=1.0.1
+searcher~=0.1.0
+spellchecker~=0.4

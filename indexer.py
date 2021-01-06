@@ -29,6 +29,7 @@ class Indexer:
         self.temp_posting_dict = {}
         self.sorted_posting_dict = {}
         self.tf_idf_dict = {}
+        self.df_dict = {}
         self.sorted_term_dict = {}
         self.path = self.config.get__savedFileMainFolder()+"\\"
 
@@ -60,7 +61,7 @@ class Indexer:
             for term in document_dictionary.keys():
                 try:
                     # Update posting
-                    if term not in self.temp_posting_dict.keys():
+                    """if term not in self.temp_posting_dict.keys():
                         self.temp_posting_dict[term] = []                                           # TF= Fi/|D|
                         self.temp_posting_dict[term].append([document.tweet_id, document_dictionary[term][0]/document.doc_length, document_dictionary[term][1]])
 
@@ -71,30 +72,43 @@ class Indexer:
                         self.inverted_idx[term] = []
                         self.inverted_idx[term].append([1, 0, self.path + 'posting.txt'])  # num of tweets, pointer
                     else:
-                        self.inverted_idx[term][0][0] += 1  # DFi
+                        self.inverted_idx[term][0][0] += 1  # DFi"""
+                    if term not in self.df_dict.keys():
+                        self.df_dict[term] = 1  # DF
+                    else:
+                        self.df_dict[term] += 1  # DF
+
+                    # building inverted idx
+                    key = (term, document.tweet_id)
+                    if key not in self.inverted_idx.keys():
+                        self.inverted_idx[key] = []   # TF/|D|, TF*IDF
+                        self.inverted_idx[key].append([document_dictionary[term][0]/document.doc_length, 0])
                 except:
                     print('problem with the following key {}'.format(term[0]))
 
         if self.cur_num_of_tweets == num_of_all_tweets and document.doc_length != -1:
             for term in self.inverted_idx.keys():
                 try:
-                    # Update inverted_idx with IDF
-                    self.inverted_idx[term][0][1] = math.log(self.N_tweets/self.inverted_idx[term][0][0], 2)  # LOG(N/DFi)
+                    # Update inverted_idx with TF*IDF
+                    IDF = math.log(self.N_tweets/self.df_dict[term[0]], 2)  # LOG(N/DF)
+                    self.inverted_idx[term][0][1] = self.inverted_idx[term][0][0]*IDF  # TF*IDF
                 except:
                     print('problem with the following key {}'.format(term[0]))
 
         # write Posting dict to file
         if self.cur_num_of_tweets == num_of_all_tweets and document.doc_length != -1:  # last tweet
             print(len(self.inverted_idx))
-            key_list = []
+            inverted_keys = []
             for key in self.inverted_idx.keys():
-                key_list.append(key)
-            for term in key_list:  # remove all term with term frequency 1
-                if self.inverted_idx[term][0][0] == 1:
-                    del self.inverted_idx[term]
+                inverted_keys.append(key)
+            for term in self.df_dict.keys():  # remove all term with term frequency 1
+                if self.df_dict[term] == 1:
+                    for tuple_key in inverted_keys:
+                        if tuple_key[0] == term:
+                            del self.inverted_idx[tuple_key]
             print(len(self.inverted_idx))
             # sort the dict
-            self.sorted_posting_dict = collections.OrderedDict(sorted(self.temp_posting_dict.items()))
+            """self.sorted_posting_dict = collections.OrderedDict(sorted(self.temp_posting_dict.items()))
             #print("*********************************************")
             # make a txt file out of the sorted_posting_dict
             with open('posting.txt', 'w', encoding='utf-8') as fp:
@@ -106,33 +120,50 @@ class Indexer:
             #print("*********************************************")
             # empty dicts
             self.temp_posting_dict.clear()
-            self.file_counter += 1
+            self.file_counter += 1"""
 
         # create new file of term_dict
         if self.cur_num_of_tweets == num_of_all_tweets:  # last tweet
             # sort the dict
             self.sorted_term_dict = collections.OrderedDict(sorted(document.term_dict.items()))
+            for p in self.sorted_term_dict.items():
+                if len(p[1]) > 1:  # more then 2 tweet_id
+                    for str1 in p[1]:
+                        key = (p[0], str1[0])
+                        if key not in self.inverted_idx.keys():
+                            self.inverted_idx[key] = []  # TF/|D|, TF*IDF
+                            self.inverted_idx[key].append([str1[1], 1])
+
             # make a txt file out of the term_dict
-            with open('posting.txt', 'a', encoding='utf-8') as fp:
+            """with open('posting.txt', 'a', encoding='utf-8') as fp:
                 for p in self.sorted_term_dict.items():
                     if len(p[1]) > 1:  # more then 2 tweet_id
                         for str1 in p[1]:
                             self.writen_terms += 1
                             s = p[0] + ":" + str(str1[0]) + "-" + str(str1[1]) + "-100"
-                            fp.write(s + "\n")
+                            fp.write(s + "\n")"""
             # empty sorted_term_dict
             self.sorted_term_dict.clear()
-            self.file_counter += 1
+            #self.file_counter += 1
             # self.create_inverted_index(self.path+'posting.txt')
             self.finished_inverted = True
 
         # Change all capital letter terms in dict
         if self.finished_inverted:
-            for term in document.capital_letter_dict:
+            inverted_keys = []
+            for key in self.inverted_idx.keys():
+                inverted_keys.append(key)
+            for term in document.capital_letter_dict.keys():  # remove all term with term frequency 1
+                for tuple_key in inverted_keys:
+                    if tuple_key[0] == term.lower():
+                        new_tuple = (term, tuple_key[1])
+                        self.inverted_idx[new_tuple] = self.inverted_idx[tuple_key]
+                        del self.inverted_idx[tuple_key]
+            """for term in document.capital_letter_dict:
                 if document.capital_letter_dict[term]:  # if the term is upper is all corpus
                     if term.lower() in self.inverted_idx:
                         self.inverted_idx[term] = self.inverted_idx[term.lower()]
-                        del self.inverted_idx[term.lower()]
+                        del self.inverted_idx[term.lower()]"""
 
 
         """if self.cur_num_of_tweets == num_of_all_tweets:  # last tweet

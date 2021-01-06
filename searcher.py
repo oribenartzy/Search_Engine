@@ -55,6 +55,23 @@ class Searcher:
         :return: dictionary of relevant documents mapping doc_id to document frequency.
         """
         relevant_docs = {}
+        inverted_keys = []
+        for key in self._indexer.inverted_idx.keys():
+            inverted_keys.append(key)
+        for term in query_as_list:  # remove all term with term frequency 1
+            for tuple_key in inverted_keys:
+                if tuple_key[0] == term or tuple_key[0] == term.lower() or tuple_key[0] == term.upper():
+                    try:
+                        TF_IDF = self._indexer.inverted_idx[tuple_key][0][1]
+                        if tuple_key[1] not in relevant_docs.keys():
+                            relevant_docs[tuple_key[1]] = 1  # TF-IDF
+                        else:
+                            relevant_docs[tuple_key[1]] += 1
+                    except:
+                        print('term {} not found in posting'.format(term))
+
+
+        """relevant_docs = {}
         for term in query_as_list:
             if term in self._indexer.inverted_idx or term.upper() in self._indexer.inverted_idx or term.lower() in self._indexer.inverted_idx:
                 with open("posting_pkl.txt", buffering=2000000, encoding='utf-8') as f:
@@ -82,7 +99,7 @@ class Searcher:
                                 else:
                                     relevant_docs[tweet_id] += 1
                             except:
-                                print('term {} not found in posting'.format(term))
+                                print('term {} not found in posting'.format(term))"""
         sorted_relevant_docs = {k: v for k, v in sorted(relevant_docs.items(), key=lambda item: item[1], reverse=True)}
 
         return sorted_relevant_docs
