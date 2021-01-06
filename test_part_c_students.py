@@ -101,7 +101,7 @@ if __name__ == '__main__':
                 if build_idx_time > 60:
                     logging.error('Parsing and index our *small* benchmark dataset took over a minute!')
                 # test loading precomputed model
-                #engine.load_precomputed_model(model_dir)
+                engine.load_precomputed_model(model_dir)
 
                 # test that we can run one query and get results in the format we expect
                 n_res, res = engine.search('bioweapon')

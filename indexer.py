@@ -1,12 +1,6 @@
 # DO NOT MODIFY CLASS NAME
-import copy
-import collections
-import fileinput
 import math
-import os
 import pickle
-
-import utils
 
 class Indexer:
 
@@ -46,14 +40,12 @@ class Indexer:
         num_of_all_tweets = document.num_of_tweets
         self.cur_num_of_tweets += 1
 
-
-
         document_dictionary = document.term_doc_dictionary
 
         # Update tf-idf dict
-        tweet_id = document.tweet_id
+        """tweet_id = document.tweet_id
         self.tf_idf_dict[tweet_id] = []       # max_tf         # distinct_words        # tweet_length
-        self.tf_idf_dict[tweet_id].append((document.max_tf, document.distinct_words, document.doc_length))
+        self.tf_idf_dict[tweet_id].append((document.max_tf, document.distinct_words, document.doc_length))"""
 
         # Go over each term in the doc
         if document.doc_length != -1:  # if NOT RT
@@ -82,7 +74,7 @@ class Indexer:
                     key = (term, document.tweet_id)
                     if key not in self.inverted_idx.keys():
                         self.inverted_idx[key] = []   # TF/|D|, TF*IDF
-                        self.inverted_idx[key].append([document_dictionary[term][0]/document.doc_length, 0])
+                        self.inverted_idx[key].append([document_dictionary[term][0]/document.max_tf, 0])
                 except:
                     print('problem with the following key {}'.format(term[0]))
 
@@ -101,11 +93,9 @@ class Indexer:
             inverted_keys = []
             for key in self.inverted_idx.keys():
                 inverted_keys.append(key)
-            for term in self.df_dict.keys():  # remove all term with term frequency 1
-                if self.df_dict[term] == 1:
-                    for tuple_key in inverted_keys:
-                        if tuple_key[0] == term:
-                            del self.inverted_idx[tuple_key]
+            for tuple_key in inverted_keys:
+                if self.df_dict[tuple_key[0]] < 8:
+                    del self.inverted_idx[tuple_key]  # remove all term with term frequency 1
             print(len(self.inverted_idx))
             # sort the dict
             """self.sorted_posting_dict = collections.OrderedDict(sorted(self.temp_posting_dict.items()))
@@ -124,9 +114,7 @@ class Indexer:
 
         # create new file of term_dict
         if self.cur_num_of_tweets == num_of_all_tweets:  # last tweet
-            # sort the dict
-            self.sorted_term_dict = collections.OrderedDict(sorted(document.term_dict.items()))
-            for p in self.sorted_term_dict.items():
+            for p in document.term_dict.items():
                 if len(p[1]) > 1:  # more then 2 tweet_id
                     for str1 in p[1]:
                         key = (p[0], str1[0])
@@ -165,12 +153,9 @@ class Indexer:
                         self.inverted_idx[term] = self.inverted_idx[term.lower()]
                         del self.inverted_idx[term.lower()]"""
 
-
         """if self.cur_num_of_tweets == num_of_all_tweets:  # last tweet
             self.save_index('idx_bench.pkl')
             self.load_index('idx_bench.pkl')"""
-
-
     """def create_inverted_index(self, file_name):
         with open(self.path+file_name, buffering=2000000, encoding='utf-8') as f:
             num_of_lines = 1
@@ -213,9 +198,6 @@ class Indexer:
             os.remove(self.path+self.file_name_list[0])
         self.finished_inverted = True"""
 
-
-
-
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
     def load_index(self, fn):
@@ -224,16 +206,13 @@ class Indexer:
         Input:
             fn - file name of pickled index.
         """
-        file_name = 'idx_bench.pkl'
+        file_name = fn
         open_file = open(file_name, "rb")
         loaded_list = pickle.load(open_file)
         open_file.close()
-        # saving the posting file to folder
-        with open('posting_pkl.txt', 'w', encoding='utf-8') as fp:
-            s = loaded_list[1]
-            fp.write(s)
 
-        return loaded_list[0]
+        #self.inverted_idx = loaded_list
+        return loaded_list
 
 
     # DO NOT MODIFY THIS SIGNATURE
@@ -244,10 +223,9 @@ class Indexer:
         Input:
               fn - file name of pickled index.
         """
-        file_name = 'idx_bench.pkl'
+        file_name = fn
         open_file = open(file_name, "wb")
-        file = open('posting.txt', 'r')
-        sample_list = [self.inverted_idx, file.read()]
+        sample_list = [self.inverted_idx]
         pickle.dump(sample_list, open_file)
         open_file.close()
 
@@ -257,7 +235,8 @@ class Indexer:
         """
         Checks if a term exist in the dictionary.
         """
-        return term in self.postingDict
+
+        return term in self.df_dict
 
     # feel free to change the signature and/or implementation of this function 
     # or drop altogether.

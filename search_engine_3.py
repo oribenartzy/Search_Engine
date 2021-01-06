@@ -5,14 +5,11 @@ from nltk.corpus import stopwords
 
 import SpellChecker_ranker
 import configuration
-from Thesaurus_ranker import Thesaurus_ranker
-from reader import ReadFile
 from configuration import ConfigClass
 from parser_module import Parse
 from indexer import Indexer
 from searcher import Searcher
 import utils
-
 
 # DO NOT CHANGE THE CLASS NAME
 class SearchEngine:
@@ -70,13 +67,13 @@ class SearchEngine:
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
-    def load_precomputed_model(self):
+    def load_precomputed_model(self, model_dir=None):
         """
         Loads a pre-computed model (or models) so we can answer queries.
         This is where you would load models like word2vec, LSI, LDA, etc. and
         assign to self._model, which is passed on to the searcher at query time.
         """
-        return None
+        pass
 
         # DO NOT MODIFY THIS SIGNATURE
         # You can change the internal implementation as you see fit.
@@ -127,7 +124,7 @@ class SearchEngine:
                         query_as_list.append(term)
             counter += len_term
 
-        spell_checker = SpellChecker_ranker.correct("ori")
+        spell_checker = SpellChecker_ranker.correct_query(query_as_list)
         # spell_checker = SpellChecker(query_as_list)
         # new_query = spell_checker.extend_query()
         searcher = Searcher(self._parser, self._indexer, model=self._model)
@@ -173,7 +170,7 @@ def main():
             for res in query:
                 print("Tweet id: " + "{" + res + "}" + " Score: " + "{" + str(num) + "}")
                 num += 1"""
-        final_tweets = Search_Engine.search('i love dugs and cats')
+        final_tweets = Search_Engine.search('i love appell and banana')
         print("num of relevant:", final_tweets[0])
         num = 1
         for tweet_id in final_tweets[1].keys():

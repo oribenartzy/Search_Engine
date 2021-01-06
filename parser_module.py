@@ -92,8 +92,8 @@ class Parse:
         """
         # print(text)
         text_tokens = word_tokenize(text)
-        if text_tokens[0] == 'RT':
-            return []
+        # if text_tokens[0] == 'RT':
+        #     return []
 
         # find TAGS
         if "@" in text_tokens:
@@ -422,9 +422,12 @@ class Parse:
 
         # find max_tf in each tweet
         max_tf = 0
+        max_list = []
         if len(term_dict) != 0:
             all_val = term_dict.values()
-            max_tf = max(all_val)
+            for val in all_val:
+                max_list.append(val[0])
+            max_tf = max(max_list)
 
         # find distinct_words
         distinct_words = 0
