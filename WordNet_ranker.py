@@ -19,9 +19,11 @@ class WordNet_ranker:
                     synonyms.append(rule.name())
                 res = []
                 for word in synonyms:
-                    wordFromList1 = wn.synsets(term)[0]#print("wup_similarity", w1.wup_similarity(w2))
-                    wordFromList2 = wn.synsets(word)[0]# print(term)
-                    s = wordFromList1.wup_similarity(wordFromList2)# print(wn.synsets(term))
+                    # print("wup_similarity", w1.wup_similarity(w2))
+                    # print(wn.synsets(term))
+                    wordFromList1 = wn.synsets(term)[0]
+                    wordFromList2 = wn.synsets(word)[0]
+                    s = wordFromList1.wup_similarity(wordFromList2)
                     res.append(s)
                 new_term = ""
                 max = 0

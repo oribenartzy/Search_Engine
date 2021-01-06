@@ -186,11 +186,11 @@ def main():
             for res in query:
                 print("Tweet id: " + "{" + res + "}" + " Score: " + "{" + str(num) + "}")
                 num += 1"""
-        final_tweets = Search_Engine.search("twitter.com")
+        final_tweets = Search_Engine.search("Children are “almost immune from this disease.”")
         print("num of relevant:", final_tweets[0])
         num = 1
         for tweet_id in final_tweets[1].keys():
-            if num >= 5:
+            if num <= 5:
                 print("Tweet id: " + "{" + tweet_id + "}" + " Score: " + "{" + str(num) + "}")
                 num += 1
         #print(Search_Engine.load_index('inverted_idx.pkl'))
