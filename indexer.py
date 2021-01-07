@@ -52,19 +52,6 @@ class Indexer:
             self.N_tweets += 1
             for term in document_dictionary.keys():
                 try:
-                    # Update posting
-                    """if term not in self.temp_posting_dict.keys():
-                        self.temp_posting_dict[term] = []                                           # TF= Fi/|D|
-                        self.temp_posting_dict[term].append([document.tweet_id, document_dictionary[term][0]/document.doc_length, document_dictionary[term][1]])
-
-                    else:
-                        self.temp_posting_dict[term].append([document.tweet_id, document_dictionary[term][0]/document.doc_length, document_dictionary[term][1]])
-                    # Create inverted_idx
-                    if term not in self.inverted_idx.keys():
-                        self.inverted_idx[term] = []
-                        self.inverted_idx[term].append([1, 0, self.path + 'posting.txt'])  # num of tweets, pointer
-                    else:
-                        self.inverted_idx[term][0][0] += 1  # DFi"""
                     if term not in self.df_dict.keys():
                         self.df_dict[term] = 1  # DF
                     else:
@@ -73,8 +60,8 @@ class Indexer:
                     # building inverted idx
                     key = (term, document.tweet_id)
                     if key not in self.inverted_idx.keys():
-                        self.inverted_idx[key] = []   # TF/|D|, TF*IDF
-                        self.inverted_idx[key].append([document_dictionary[term][0]/document.max_tf, 0])
+                        self.inverted_idx[key] = []   # TF/max_tf, TF*IDF, TF
+                        self.inverted_idx[key].append([document_dictionary[term][0]/document.max_tf, 0, document_dictionary[term][0]])
                 except:
                     print('problem with the following key {}'.format(term[0]))
 
@@ -97,20 +84,13 @@ class Indexer:
                 if self.df_dict[tuple_key[0]] < 8:
                     del self.inverted_idx[tuple_key]  # remove all term with term frequency 1
             print(len(self.inverted_idx))
-            # sort the dict
-            """self.sorted_posting_dict = collections.OrderedDict(sorted(self.temp_posting_dict.items()))
-            #print("*********************************************")
-            # make a txt file out of the sorted_posting_dict
-            with open('posting.txt', 'w', encoding='utf-8') as fp:
-                for p in self.sorted_posting_dict.items():
-                    for str1 in p[1]:
-                        self.writen_terms += 1
-                        s = p[0] + ":" + str(str1[0]) + "-" + str(str1[1]) + "-" + str(str1[2])[1:-1]
-                        fp.write(s+"\n")
-            #print("*********************************************")
-            # empty dicts
-            self.temp_posting_dict.clear()
-            self.file_counter += 1"""
+
+            """num = 0
+            for term in self.df_dict.keys():
+                if self.df_dict[term] < 5:
+                    num += 1
+            print("num of word without 8", len(self.df_dict)-num)
+            print("num of all word", len(self.df_dict))"""
 
         # create new file of term_dict
         if self.cur_num_of_tweets == num_of_all_tweets:  # last tweet
@@ -120,7 +100,7 @@ class Indexer:
                         key = (p[0], str1[0])
                         if key not in self.inverted_idx.keys():
                             self.inverted_idx[key] = []  # TF/|D|, TF*IDF
-                            self.inverted_idx[key].append([str1[1], 1])
+                            self.inverted_idx[key].append([str1[1], 1, 1])
 
             # make a txt file out of the term_dict
             """with open('posting.txt', 'a', encoding='utf-8') as fp:
@@ -153,9 +133,9 @@ class Indexer:
                         self.inverted_idx[term] = self.inverted_idx[term.lower()]
                         del self.inverted_idx[term.lower()]"""
 
-        """if self.cur_num_of_tweets == num_of_all_tweets:  # last tweet
+        if self.cur_num_of_tweets == num_of_all_tweets:  # last tweet
             self.save_index('idx_bench.pkl')
-            self.load_index('idx_bench.pkl')"""
+            #self.load_index('idx_bench.pkl')
     """def create_inverted_index(self, file_name):
         with open(self.path+file_name, buffering=2000000, encoding='utf-8') as f:
             num_of_lines = 1
@@ -210,7 +190,7 @@ class Indexer:
         open_file = open(file_name, "rb")
         loaded_list = pickle.load(open_file)
         open_file.close()
-
+        #print(loaded_list)
         #self.inverted_idx = loaded_list
         return loaded_list
 

@@ -226,51 +226,6 @@ class Parse:
                 if found_fractions:  # delete fractions
                     del text_tokens[rmv_index]
                     del text_tokens[rmv_index - 1]
-        """punctuations = '''!(-+—[]{};:'",)<>,./?^&*_’~|=→"”“'''  # removes relevant punctuations and http and //short url
-        index_count = 0
-        for word in text_tokens:
-            to_delete = False
-            if len(word) > 1 and word.find('-') != -1:  # contains '-'
-                text_tokens.extend(word.split('-'))
-                text_tokens.remove(word)
-                to_delete = True
-            if len(word) > 1 and word.find('…') != -1:  # contains '…'
-                if to_delete == False:
-                    text_tokens.extend(word.split('…'))
-                    text_tokens.remove(word)
-                to_delete = True
-            if len(word) > 1 and word.find('_') != -1:  # contains '_'
-                if to_delete == False:
-                    text_tokens.extend(word.split('_'))
-                    text_tokens.remove(word)
-                to_delete = True
-            if len(word) > 1 and word.find('+') != -1:  # contains '+'
-                if to_delete == False:
-                    text_tokens.extend(word.split('+'))
-                    text_tokens.remove(word)
-                to_delete = True
-            if len(word) > 1 and word.find('/') != -1 and not (word[0] == '/' and word[1] == '/'):  # contains '/'
-                if to_delete == False:
-                    text_tokens.extend(word.split('/'))
-                    text_tokens.remove(word)
-                to_delete = True
-            if to_delete == False:
-                if word in punctuations:
-                    i = text_tokens.index(word)
-                    text_tokens[i] = " "
-                elif word == "http" or word == "https" or word == "http..." or word == "https..." or word == "RT" or word == "rt":
-                    i2 = text_tokens.index(word)
-                    text_tokens[i2] = " "
-                elif len(word) > 1 and word[0] == '/' and word[1] == '/':
-                    i3 = text_tokens.index(word)
-                    text_tokens[i3] = " "
-                else:
-                    text_tokens[index_count] = ''.join([i if ord(i) < 128 else '' for i in word])
-            index_count += 1
-        text_tokens[:] = [x for x in text_tokens if
-                          x != " " and x != ".." and x != "..." and x != "...." and x != "....." and x != "......" and
-                          x != "``" and x != "''" and x != "'s" and x != "'m" and x != "n't" and x != "." and x != ""
-                          and x != "'re" and x != "__" and x != "_" and x != "___" and x != "," and x != "!"]"""
         ##############################################################################################
         # find punctuations
         new_words = []
@@ -376,6 +331,10 @@ class Parse:
         quote_text = doc_as_list[6]
         quote_url = doc_as_list[7]
         term_dict = {}
+
+        # if tweet_id == "1291304210731065344":
+        #     print(full_text)
+
 
         # text tokenized
         tokenized_text = self.parse_sentence(full_text, tweet_id)

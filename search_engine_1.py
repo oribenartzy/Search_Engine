@@ -1,16 +1,14 @@
 import re
+from datetime import datetime
 
 import pandas as pd
 from nltk.corpus import stopwords
-
 import configuration
-from Thesaurus_ranker import Thesaurus_ranker
+from Advanced_Parser_ranker import AdvancedParse
 from configuration import ConfigClass
-from parser_module import Parse
 from indexer import Indexer
 from searcher import Searcher
 import utils
-
 
 # DO NOT CHANGE THE CLASS NAME
 class SearchEngine:
@@ -21,7 +19,7 @@ class SearchEngine:
     # You can change the internal implementation, but you must have a parser and an indexer.
     def __init__(self, config=None):
         self._config = config
-        self._parser = Parse()
+        self._parser = AdvancedParse()
         self._indexer = Indexer(config)
         self._model = None
 
@@ -124,10 +122,8 @@ class SearchEngine:
                     if len_term > 1:
                         query_as_list.append(term)
             counter += len_term
-        thesaurus = Thesaurus_ranker(query_as_list)
-        new_query = thesaurus.extend_query()
         searcher = Searcher(self._parser, self._indexer, model=self._model)
-        return searcher.search(new_query)  # TODO: add K results
+        return searcher.search(query_as_list)  # TODO: add K results
 
 
 def main():
@@ -169,7 +165,9 @@ def main():
             for res in query:
                 print("Tweet id: " + "{" + res + "}" + " Score: " + "{" + str(num) + "}")
                 num += 1"""
-        final_tweets = Search_Engine.search('bioweapon')
+        print(datetime.now())
+        final_tweets = Search_Engine.search('Children are “almost immune from this disease.”')
+        print(datetime.now())
         print("num of relevant:", final_tweets[0])
         num = 1
         for tweet_id in final_tweets[1].keys():

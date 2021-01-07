@@ -1,5 +1,6 @@
 from nltk.corpus import lin_thesaurus as thesaurus
 
+
 class Thesaurus_ranker:
 
     def __init__(self, query):

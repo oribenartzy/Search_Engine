@@ -1,17 +1,14 @@
 import re
-
+from datetime import datetime
 import pandas as pd
 from nltk.corpus import stopwords
-
 import configuration
+from Advanced_Parser_ranker import AdvancedParse
 from Thesaurus_ranker import Thesaurus_ranker
 from WordNet_ranker import WordNet_ranker
-from reader import ReadFile
 from configuration import ConfigClass
-from parser_module import Parse
 from indexer import Indexer
 from searcher import Searcher
-import utils
 
 
 # DO NOT CHANGE THE CLASS NAME
@@ -23,7 +20,7 @@ class SearchEngine:
     # You can change the internal implementation, but you must have a parser and an indexer.
     def __init__(self, config=None):
         self._config = config
-        self._parser = Parse()
+        self._parser = AdvancedParse()
         self._indexer = Indexer(config)
         self._model = None
 
@@ -80,6 +77,7 @@ class SearchEngine:
         # You can change the internal implementation as you see fit.
 
     def search(self, query):
+
         """ 
         Executes a query over an existing index and returns the number of 
         relevant docs and an ordered list of search results.
@@ -90,15 +88,6 @@ class SearchEngine:
             a list of tweet_ids where the first element is the most relavant 
             and the last is the least relevant result.
         """
-        """queries_list = []
-        if type(query) is list:  # if queries is a list
-            for one_query in query:
-                queries_list.append(one_query)
-        if type(query) is str:  # if queries is a text file
-            with open(query, encoding='utf-8') as f:
-                for line in f:
-                    if line != "\n":
-                        queries_list.append(line)"""
         query_as_list = self._parser.parse_sentence(query, 0)
         original_query_list = query.split(" ")
         stop_words = stopwords.words('english')
@@ -132,7 +121,7 @@ class SearchEngine:
                     if len_term > 1:
                         query_as_list.append(term)
             counter += len_term
-        thesaurus = Thesaurus_ranker(query_as_list)
+        """thesaurus = Thesaurus_ranker(query_as_list)
         thesaurus_query = thesaurus.extend_query()
         wordNet = WordNet_ranker(query_as_list)
         wordNet_query = wordNet.extend_query()
@@ -141,52 +130,23 @@ class SearchEngine:
         if len(thesaurus_query) > 0 and len(wordNet_query) > 0:
             for term in thesaurus_query:
                 if term not in wordNet_query:
-                    new_query.append(term)
-
+                    new_query.append(term)"""
+        wordNet = WordNet_ranker(query_as_list)
+        wordNet_query = wordNet.extend_query()
         searcher = Searcher(self._parser, self._indexer, model=self._model)
-        return searcher.search(new_query)  # TODO: add K results
+        return searcher.search(wordNet_query)  # TODO: add K results
 
 
 def main():
     empty_query = False
-    """config.set__toStem(stemming)
-    config.set__corpusPath(corpus_path)
-    config.set__savedFileMainFolder(output_path)
-    k = num_docs_to_retrieve
-    query = queries
-    empty_query = False
-    # if query is empty
-    if type(query) is list:  # if queries is a list
-        if len(query) == 0 or (len(query) == 1 and query[0] == ""):
-            empty_query = True
-            with open('results.csv', 'a', encoding='utf-8') as fp:
-                s = "Tweet id: " + "{}" + " Score: " + "{}" + "\n"
-                fp.write(s)
-            print("Tweet id: " + "{}" + " Score: " + "{}" + "\n")
-    if type(query) is str:  # if queries is a text file
-        with open(query, encoding='utf-8') as f:
-            for line in f:
-                if line == "":
-                    empty_query = True
-                    with open('results.csv', 'a', encoding='utf-8') as fp:
-                        s = "Tweet id: " + "{}" + " Score: " + "{}" + "\n"
-                        fp.write(s)
-                    print("Tweet id: " + "{}" + " Score: " + "{}" + "\n")"""
     if not empty_query:
         config = ConfigClass()
         corpus_path = configuration.ConfigClass.get__corpusPath(config)
         Search_Engine = SearchEngine(config)
         Search_Engine.build_index_from_parquet(corpus_path)
-        # query = input("Please enter a query: ")
-        # k = int(input("Please enter number of docs to retrieve: "))
-        # inverted_index = self.load_index()
-        """final_tweets = search_and_rank_query(query, inverted_index, k, lda)
-        for query in final_tweets:
-            num = 1
-            for res in query:
-                print("Tweet id: " + "{" + res + "}" + " Score: " + "{" + str(num) + "}")
-                num += 1"""
-        final_tweets = Search_Engine.search("Children are “almost immune from this disease.”")
+        print(datetime.now())
+        final_tweets = Search_Engine.search('Children are “almost immune from this disease.”')
+        print(datetime.now())
         print("num of relevant:", final_tweets[0])
         num = 1
         for tweet_id in final_tweets[1].keys():

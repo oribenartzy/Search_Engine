@@ -39,7 +39,7 @@ class Searcher:
         tweet_id_num = 1
         with open('results.csv', 'a', encoding='utf-8') as fp:
             for p in relevant_docs:
-                if tweet_id_num <= 5:
+                if tweet_id_num <= 10:
                     s = ("Tweet id: " + "{" + p + "}" + " Score: " + "{" + str(tweet_id_num) + "}" + "\n")
                     tweet_id_num += 1
                     fp.write(s)
@@ -69,12 +69,13 @@ class Searcher:
                             relevant_docs[tuple_key[1]] = 1  # TF-IDF
                         else:
                             relevant_docs[tuple_key[1]] += 1"""
+                        TF = self._indexer.inverted_idx[tuple_key][0][2]
                         if tuple_key[1] not in relevant_docs.keys():
-                            relevant_docs[tuple_key[1]] = [pow(TF_IDF, 2), TF_IDF, 1]  # TF-IDF
+                            relevant_docs[tuple_key[1]] = [pow(TF_IDF, 2), TF_IDF, TF]  # TF-IDF
                         else:
                             relevant_docs[tuple_key[1]][0] += pow(TF_IDF, 2)
                             relevant_docs[tuple_key[1]][1] += TF_IDF
-                            relevant_docs[tuple_key[1]][2] += 1
+                            relevant_docs[tuple_key[1]][2] += TF
 
                     except:
                         print('term {} not found in posting'.format(term))
@@ -85,40 +86,12 @@ class Searcher:
             TFIDF = relevant_docs[term][1]
             square_root = math.sqrt(pow_TFIDF*len_query)
             cosine = (TFIDF/square_root)
-            relevant_docs[term] = cosine
-            # if relevant_docs[term][2] > 1:
-            #     last_dict[term] = cosine
+            #relevant_docs[term] = cosine
+            #print(relevant_docs)
+            if relevant_docs[term][2] > 1:
+                last_dict[term] = cosine
 
-        """relevant_docs = {}
-        for term in query_as_list:
-            if term in self._indexer.inverted_idx or term.upper() in self._indexer.inverted_idx or term.lower() in self._indexer.inverted_idx:
-                with open("posting_pkl.txt", buffering=2000000, encoding='utf-8') as f:
-                    for line in f:
-                        term_list = line.split(":")
-                        key = term_list[0]
-                        value = term_list[1]
-                        if " " not in key:
-                            key = key.lower()
-                        if term == key:
-                            try:
-                                split = value.split("-")
-                                tweet_id = split[0]
-                                occur = split[1]  # tf
-                                IDF = 0
-                                if term in self._indexer.inverted_idx:
-                                    IDF = self._indexer.inverted_idx[term][0][1]
-                                if term.upper() in self._indexer.inverted_idx:
-                                    IDF = self._indexer.inverted_idx[term.upper()][0][1]
-                                if term.lower() in self._indexer.inverted_idx:
-                                    IDF = self._indexer.inverted_idx[term.lower()][0][1]
-                                TF_IDF = float(occur)*IDF
-                                if tweet_id not in relevant_docs.keys():
-                                    relevant_docs[tweet_id] = 1  # TF-IDF
-                                else:
-                                    relevant_docs[tweet_id] += 1
-                            except:
-                                print('term {} not found in posting'.format(term))"""
-        sorted_relevant_docs = {k: v for k, v in sorted(relevant_docs.items(), key=lambda item: item[1], reverse=True)}
-        # sorted_relevant_docs = {k: v for k, v in sorted(last_dict.items(), key=lambda item: item[1], reverse=True)}
+        #sorted_relevant_docs = {k: v for k, v in sorted(relevant_docs.items(), key=lambda item: item[1], reverse=True)}
+        sorted_relevant_docs = {k: v for k, v in sorted(last_dict.items(), key=lambda item: item[1], reverse=True)}
 
         return sorted_relevant_docs

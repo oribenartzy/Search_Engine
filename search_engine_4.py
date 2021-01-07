@@ -2,13 +2,14 @@ import re
 from datetime import datetime
 import pandas as pd
 from nltk.corpus import stopwords
-import SpellChecker_ranker
 import configuration
+from Thesaurus_ranker import Thesaurus_ranker
 from configuration import ConfigClass
 from parser_module import Parse
 from indexer import Indexer
 from searcher import Searcher
 import utils
+
 
 # DO NOT CHANGE THE CLASS NAME
 class SearchEngine:
@@ -88,7 +89,6 @@ class SearchEngine:
             a list of tweet_ids where the first element is the most relavant
             and the last is the least relevant result.
         """
-
         query_as_list = self._parser.parse_sentence(query, 0)
         original_query_list = query.split(" ")
         stop_words = stopwords.words('english')
@@ -122,10 +122,10 @@ class SearchEngine:
                     if len_term > 1:
                         query_as_list.append(term)
             counter += len_term
-
-        spell_checker = SpellChecker_ranker.correct_query(query_as_list)
+        thesaurus = Thesaurus_ranker(query_as_list)
+        new_query = thesaurus.extend_query()
         searcher = Searcher(self._parser, self._indexer, model=self._model)
-        return searcher.search(spell_checker)  # TODO: add K results
+        return searcher.search(new_query)
 
 
 def main():
@@ -136,8 +136,9 @@ def main():
         Search_Engine = SearchEngine(config)
         Search_Engine.build_index_from_parquet(corpus_path)
         print(datetime.now())
-        final_tweets = Search_Engine.search('Children are “almost immune from this disease.”')
+        final_tweets = Search_Engine.search("Children are “almost immune from this disease.”")
         print(datetime.now())
+
         print("num of relevant:", final_tweets[0])
         num = 1
         for tweet_id in final_tweets[1].keys():
