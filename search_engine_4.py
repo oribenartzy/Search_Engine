@@ -129,19 +129,17 @@ class SearchEngine:
 
 
 def main():
-    empty_query = False
-    if not empty_query:
-        config = ConfigClass()
-        corpus_path = configuration.ConfigClass.get__corpusPath(config)
-        Search_Engine = SearchEngine(config)
-        Search_Engine.build_index_from_parquet(corpus_path)
-        print(datetime.now())
-        final_tweets = Search_Engine.search("Children are “almost immune from this disease.”")
-        print(datetime.now())
+    config = ConfigClass()
+    corpus_path = configuration.ConfigClass.get__corpusPath(config)
+    Search_Engine = SearchEngine(config)
+    Search_Engine.build_index_from_parquet(corpus_path)
+    print(datetime.now())
+    final_tweets = Search_Engine.search("Children are “almost immune from this disease.”")
+    print(datetime.now())
 
-        print("num of relevant:", final_tweets[0])
-        num = 1
-        for tweet_id in final_tweets[1].keys():
-            if num >= 5:
-                print("Tweet id: " + "{" + tweet_id + "}" + " Score: " + "{" + str(num) + "}")
-                num += 1
+    print("num of relevant:", final_tweets[0])
+    num = 1
+    for tweet_id in final_tweets[1].keys():
+        if num >= 5:
+            print("Tweet id: " + "{" + tweet_id + "}" + " Score: " + "{" + str(num) + "}")
+            num += 1

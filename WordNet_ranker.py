@@ -1,5 +1,6 @@
 from nltk.corpus import wordnet as wn
 
+
 class WordNet_ranker:
 
     def __init__(self, query):
@@ -9,7 +10,6 @@ class WordNet_ranker:
         word_to_add = []
         for term in self.query:
             synonyms = []
-            #w1 = wn.synset(term+'.n.01')
             if len(wn.synsets(term)) > 0:
                 syn = wn.synsets(term)[0]
                 #print("syn", syn)  # Synset('child.n.01')
@@ -19,8 +19,6 @@ class WordNet_ranker:
                     synonyms.append(rule.name())
                 res = []
                 for word in synonyms:
-                    # print("wup_similarity", w1.wup_similarity(w2))
-                    # print(wn.synsets(term))
                     wordFromList1 = wn.synsets(term)[0]
                     wordFromList2 = wn.synsets(word)[0]
                     s = wordFromList1.wup_similarity(wordFromList2)
@@ -43,9 +41,5 @@ class WordNet_ranker:
                     index += 1
                 if new_term != "":
                     word_to_add.append(new_term)
-                #print("res", res)
-                #print("synonyms", synonyms)
-        #print(word_to_add)
         self.query.extend(word_to_add)
-        #print(self.query)
         return self.query

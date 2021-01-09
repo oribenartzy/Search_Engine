@@ -75,7 +75,6 @@ class SearchEngine:
         # You can change the internal implementation as you see fit.
 
     def search(self, query):
-
         """ 
         Executes a query over an existing index and returns the number of 
         relevant docs and an ordered list of search results.
@@ -119,16 +118,6 @@ class SearchEngine:
                     if len_term > 1:
                         query_as_list.append(term)
             counter += len_term
-        """thesaurus = Thesaurus_ranker(query_as_list)
-        thesaurus_query = thesaurus.extend_query()
-        wordNet = WordNet_ranker(query_as_list)
-        wordNet_query = wordNet.extend_query()
-        new_query = []
-        new_query.extend(wordNet_query)
-        if len(thesaurus_query) > 0 and len(wordNet_query) > 0:
-            for term in thesaurus_query:
-                if term not in wordNet_query:
-                    new_query.append(term)"""
         wordNet = WordNet_ranker(query_as_list)
         wordNet_query = wordNet.extend_query()
         searcher = Searcher(self._parser, self._indexer, model=self._model)
@@ -136,20 +125,17 @@ class SearchEngine:
 
 
 def main():
-    empty_query = False
-    if not empty_query:
-        config = ConfigClass()
-        corpus_path = configuration.ConfigClass.get__corpusPath(config)
-        Search_Engine = SearchEngine(config)
-        Search_Engine.build_index_from_parquet(corpus_path)
-        #Search_Engine.load_index('idx_bench.pkl')
-        print(datetime.now())
-        final_tweets = Search_Engine.search('Children are “almost immune from this disease.”')
-        print(datetime.now())
-        print("num of relevant:", final_tweets[0])
-        num = 1
-        for tweet_id in final_tweets[1].keys():
-            if num <= 5:
-                print("Tweet id: " + "{" + tweet_id + "}" + " Score: " + "{" + str(num) + "}")
-                num += 1
-        #print(Search_Engine.load_index('inverted_idx.pkl'))
+    config = ConfigClass()
+    corpus_path = configuration.ConfigClass.get__corpusPath(config)
+    Search_Engine = SearchEngine(config)
+    Search_Engine.build_index_from_parquet(corpus_path)
+    #Search_Engine.load_index('idx_bench.pkl')
+    print(datetime.now())
+    final_tweets = Search_Engine.search('')
+    print(datetime.now())
+    print("num of relevant:", final_tweets[0])
+    num = 1
+    for tweet_id in final_tweets[1].keys():
+        if num <= 5:
+            print("Tweet id: " + "{" + tweet_id + "}" + " Score: " + "{" + str(num) + "}")
+            num += 1

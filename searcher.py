@@ -62,15 +62,11 @@ class Searcher:
         inverted_keys = []
         for key in self._indexer.inverted_idx.keys():
             inverted_keys.append(key)
-        for term in query_as_list:  # remove all term with term frequency 1
+        for term in query_as_list:
             for tuple_key in inverted_keys:
                 if tuple_key[0] == term or tuple_key[0] == term.lower() or tuple_key[0] == term.upper():
                     try:
                         TF_IDF = self._indexer.inverted_idx[tuple_key][0][1]
-                        """if tuple_key[1] not in relevant_docs.keys():
-                            relevant_docs[tuple_key[1]] = 1  # TF-IDF
-                        else:
-                            relevant_docs[tuple_key[1]] += 1"""
                         TF = self._indexer.inverted_idx[tuple_key][0][2]
                         if tuple_key[1] not in relevant_docs.keys():
                             relevant_docs[tuple_key[1]] = [pow(TF_IDF, 2), TF_IDF, TF]  # TF-IDF
@@ -89,8 +85,6 @@ class Searcher:
             TFIDF = relevant_docs[term][1]
             square_root = math.sqrt(pow_TFIDF*len_query)
             cosine = (TFIDF/square_root)
-            #relevant_docs[term] = cosine
-            #print(relevant_docs)
             if len(query_as_list) > 2:
                 if relevant_docs[term][2] > 1:
                     last_dict[term] = cosine

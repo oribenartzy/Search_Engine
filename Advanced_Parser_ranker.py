@@ -343,10 +343,6 @@ class AdvancedParse:
         quote_url = doc_as_list[7]
         term_dict = {}
 
-        # if tweet_id == "1291304210731065344":
-        #     print(full_text)
-
-
         # text tokenized
         tokenized_text = self.parse_sentence(full_text, tweet_id)
 

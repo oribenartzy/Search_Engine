@@ -1,6 +1,5 @@
 import re
 from datetime import datetime
-
 import pandas as pd
 from nltk.corpus import stopwords
 import configuration
@@ -88,7 +87,6 @@ class SearchEngine:
             a list of tweet_ids where the first element is the most relavant
             and the last is the least relevant result.
         """
-
         query_as_list = self._parser.parse_sentence(query, 0)
         original_query_list = query.split(" ")
         stop_words = stopwords.words('english')
@@ -127,42 +125,17 @@ class SearchEngine:
 
 
 def main():
-    empty_query = False
-    """config.set__toStem(stemming)
-    config.set__corpusPath(corpus_path)
-    config.set__savedFileMainFolder(output_path)
-    k = num_docs_to_retrieve
-    query = queries
-    empty_query = False
-    # if query is empty
-    if type(query) is list:  # if queries is a list
-        if len(query) == 0 or (len(query) == 1 and query[0] == ""):
-            empty_query = True
-            with open('results.csv', 'a', encoding='utf-8') as fp:
-                s = "Tweet id: " + "{}" + " Score: " + "{}" + "\n"
-                fp.write(s)
-            print("Tweet id: " + "{}" + " Score: " + "{}" + "\n")
-    if type(query) is str:  # if queries is a text file
-        with open(query, encoding='utf-8') as f:
-            for line in f:
-                if line == "":
-                    empty_query = True
-                    with open('results.csv', 'a', encoding='utf-8') as fp:
-                        s = "Tweet id: " + "{}" + " Score: " + "{}" + "\n"
-                        fp.write(s)
-                    print("Tweet id: " + "{}" + " Score: " + "{}" + "\n")"""
-    if not empty_query:
-        config = ConfigClass()
-        corpus_path = configuration.ConfigClass.get__corpusPath(config)
-        Search_Engine = SearchEngine(config)
-        Search_Engine.build_index_from_parquet(corpus_path)
-        #Search_Engine.load_index('idx_bench.pkl')
-        print(datetime.now())
-        final_tweets = Search_Engine.search('Children are “almost immune from this disease.”')
-        print(datetime.now())
-        print("num of relevant:", final_tweets[0])
-        num = 1
-        for tweet_id in final_tweets[1].keys():
-            if num >= 5:
-                print("Tweet id: " + "{" + tweet_id + "}" + " Score: " + "{" + str(num) + "}")
-                num += 1
+    config = ConfigClass()
+    corpus_path = configuration.ConfigClass.get__corpusPath(config)
+    Search_Engine = SearchEngine(config)
+    Search_Engine.build_index_from_parquet(corpus_path)
+    #Search_Engine.load_index('idx_bench.pkl')
+    print(datetime.now())
+    final_tweets = Search_Engine.search('Children are “almost immune from this disease.”')
+    print(datetime.now())
+    print("num of relevant:", final_tweets[0])
+    num = 1
+    for tweet_id in final_tweets[1].keys():
+        if num >= 5:
+            print("Tweet id: " + "{" + tweet_id + "}" + " Score: " + "{" + str(num) + "}")
+            num += 1
