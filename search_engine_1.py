@@ -156,15 +156,7 @@ def main():
         corpus_path = configuration.ConfigClass.get__corpusPath(config)
         Search_Engine = SearchEngine(config)
         Search_Engine.build_index_from_parquet(corpus_path)
-        # query = input("Please enter a query: ")
-        # k = int(input("Please enter number of docs to retrieve: "))
-        # inverted_index = self.load_index()
-        """final_tweets = search_and_rank_query(query, inverted_index, k, lda)
-        for query in final_tweets:
-            num = 1
-            for res in query:
-                print("Tweet id: " + "{" + res + "}" + " Score: " + "{" + str(num) + "}")
-                num += 1"""
+        #Search_Engine.load_index('idx_bench.pkl')
         print(datetime.now())
         final_tweets = Search_Engine.search('Children are “almost immune from this disease.”')
         print(datetime.now())

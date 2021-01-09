@@ -36,13 +36,15 @@ class Searcher:
         """
         relevant_docs = self._relevant_docs_from_posting(query)
         n_relevant = len(relevant_docs)
-        tweet_id_num = 1
+
+        # save the result into csv file
+        """tweet_id_num = 1
         with open('results.csv', 'a', encoding='utf-8') as fp:
             for p in relevant_docs:
                 if tweet_id_num <= 10:
                     s = ("Tweet id: " + "{" + p + "}" + " Score: " + "{" + str(tweet_id_num) + "}" + "\n")
                     tweet_id_num += 1
-                    fp.write(s)
+                    fp.write(s)"""
 
             # ranked_doc_ids = Ranker.rank_relevant_docs(relevant_docs)
         return n_relevant, relevant_docs
@@ -80,6 +82,7 @@ class Searcher:
                     except:
                         print('term {} not found in posting'.format(term))
 
+        # cosine similarity
         len_query = len(query_as_list)
         for term in relevant_docs.keys():
             pow_TFIDF = relevant_docs[term][0]
@@ -88,7 +91,10 @@ class Searcher:
             cosine = (TFIDF/square_root)
             #relevant_docs[term] = cosine
             #print(relevant_docs)
-            if relevant_docs[term][2] > 1:
+            if len(query_as_list) > 2:
+                if relevant_docs[term][2] > 1:
+                    last_dict[term] = cosine
+            else:
                 last_dict[term] = cosine
 
         #sorted_relevant_docs = {k: v for k, v in sorted(relevant_docs.items(), key=lambda item: item[1], reverse=True)}

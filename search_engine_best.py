@@ -4,7 +4,6 @@ import pandas as pd
 from nltk.corpus import stopwords
 import configuration
 from Advanced_Parser_ranker import AdvancedParse
-from Thesaurus_ranker import Thesaurus_ranker
 from WordNet_ranker import WordNet_ranker
 from configuration import ConfigClass
 from indexer import Indexer
@@ -60,8 +59,7 @@ class SearchEngine:
         Input:
             fn - file name of pickled index.
         """
-        inverted_idx = self._indexer.load_index(fn)
-        return inverted_idx
+        self._indexer.load_index(fn)
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -144,6 +142,7 @@ def main():
         corpus_path = configuration.ConfigClass.get__corpusPath(config)
         Search_Engine = SearchEngine(config)
         Search_Engine.build_index_from_parquet(corpus_path)
+        #Search_Engine.load_index('idx_bench.pkl')
         print(datetime.now())
         final_tweets = Search_Engine.search('Children are “almost immune from this disease.”')
         print(datetime.now())

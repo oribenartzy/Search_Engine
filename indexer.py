@@ -12,6 +12,7 @@ class Indexer:
     writen_terms = 0
     num_of_all_tweets = 0
     N_tweets = 0
+    save_inverted = False
 
 
     # DO NOT MODIFY THIS SIGNATURE
@@ -121,21 +122,18 @@ class Indexer:
             inverted_keys = []
             for key in self.inverted_idx.keys():
                 inverted_keys.append(key)
-            for term in document.capital_letter_dict.keys():  # remove all term with term frequency 1
+            for term in document.capital_letter_dict.keys():
                 for tuple_key in inverted_keys:
                     if tuple_key[0] == term.lower():
                         new_tuple = (term, tuple_key[1])
                         self.inverted_idx[new_tuple] = self.inverted_idx[tuple_key]
                         del self.inverted_idx[tuple_key]
-            """for term in document.capital_letter_dict:
-                if document.capital_letter_dict[term]:  # if the term is upper is all corpus
-                    if term.lower() in self.inverted_idx:
-                        self.inverted_idx[term] = self.inverted_idx[term.lower()]
-                        del self.inverted_idx[term.lower()]"""
+            self.save_inverted = True
 
-        if self.cur_num_of_tweets == num_of_all_tweets:  # last tweet
-            self.save_index('idx_bench.pkl')
-            #self.load_index('idx_bench.pkl')
+
+        """if self.cur_num_of_tweets == num_of_all_tweets and self.save_inverted == True:  # finished inverted
+            #self.save_index('idx_bench.pkl')
+            #self.load_index('idx_bench.pkl')"""
     """def create_inverted_index(self, file_name):
         with open(self.path+file_name, buffering=2000000, encoding='utf-8') as f:
             num_of_lines = 1
@@ -191,7 +189,7 @@ class Indexer:
         loaded_list = pickle.load(open_file)
         open_file.close()
         #print(loaded_list)
-        #self.inverted_idx = loaded_list
+        self.inverted_idx = loaded_list[0]
         return loaded_list
 
 
