@@ -131,7 +131,7 @@ def main():
     Search_Engine.build_index_from_parquet(corpus_path)
     #Search_Engine.load_index('idx_bench.pkl')
     print(datetime.now())
-    final_tweets = Search_Engine.search('')
+    final_tweets = Search_Engine.search('Herd immunity has been reached.')
     print(datetime.now())
     print("num of relevant:", final_tweets[0])
     num = 1
