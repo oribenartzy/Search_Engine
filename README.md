@@ -1,3 +1,3 @@
 # Search_Engine
-The is a skeleton of a search engine project for your convenience.
-Please follow the instructions provided in the file: intructions.txt
+We design and develop a search engine handling Big Data - 10M+ tweets.
+we implement a reader, parser, indexer, ranker and a searcher while Applying information retrieval algorithms.
